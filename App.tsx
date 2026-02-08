@@ -131,6 +131,7 @@ const App: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderHistory, setOrderHistory] = useState<Order[]>([]);
 
+  // flowState manages the transaction lifecycle
   const [flowState, setFlowState] = useState({
     uid: '', ign: '', selectedMethod: null as string | null, amount: 0, 
     gameName: '', packageName: ''
@@ -219,10 +220,27 @@ const App: React.FC = () => {
       const history = messages.map(m => ({ role: m.role, content: m.content }));
       const aiReply = await getAIResponse(history, msg, { availableGames: games, userName: currentUser?.username });
 
+      // Robust extraction to prevent Rs. 0 bug
       const priceMatch = aiReply.match(/\[PRICE:\s*(\d+)\]/i);
-      if (priceMatch && priceMatch[1]) {
-        setFlowState(prev => ({ ...prev, amount: parseInt(priceMatch[1]) }));
-      }
+      
+      // Attempt to identify which game and package the AI is talking about
+      const gameDetect = aiReply.match(/(Free Fire|PUBG Mobile|Freefire|PUBG)/i);
+      const pkgDetect = aiReply.match(/(\d+)\s*(Diamonds|UC|DMs|Dimonds)/i);
+
+      setFlowState(prev => {
+        let nextAmount = prev.amount;
+        if (priceMatch && priceMatch[1]) {
+           const parsed = parseInt(priceMatch[1]);
+           if (parsed > 0) nextAmount = parsed;
+        }
+
+        return {
+          ...prev,
+          amount: nextAmount,
+          gameName: gameDetect ? gameDetect[0] : prev.gameName,
+          packageName: pkgDetect ? pkgDetect[0] : prev.packageName
+        };
+      });
 
       const cleanedReply = aiReply
         .replace(/\[PRICE:\s*\d+\]/gi, "")
@@ -331,8 +349,8 @@ const App: React.FC = () => {
               {m.interactiveType === 'GAME_INPUTS' && (
                 <GameInputCard 
                   uid={flowState.uid} ign={flowState.ign} 
-                  setUid={(v:any)=>setFlowState({...flowState, uid:v})} 
-                  setIgn={(v:any)=>setFlowState({...flowState, ign:v})} 
+                  setUid={(v:any)=>setFlowState(ps => ({...ps, uid:v}))} 
+                  setIgn={(v:any)=>setFlowState(ps => ({...ps, ign:v}))} 
                   onNext={()=>handleSend(`Details: ID ${flowState.uid}, Name ${flowState.ign}`)} 
                 />
               )}
@@ -341,7 +359,7 @@ const App: React.FC = () => {
                 <PaymentSection 
                   amount={flowState.amount || 0}
                   selectedMethod={flowState.selectedMethod}
-                  onSelect={(method:any) => setFlowState({...flowState, selectedMethod: method})}
+                  onSelect={(method:any) => setFlowState(ps => ({...ps, selectedMethod: method}))}
                   onUpload={handleFileUpload}
                 />
               )}
@@ -426,7 +444,7 @@ const App: React.FC = () => {
             </div>
             <div className="p-6 bg-white border-t border-slate-100 flex justify-between items-center pb-10">
                <button onClick={() => { localStorage.clear(); window.location.reload(); }} className="text-[11px] font-black text-red-500 uppercase tracking-widest">Logout</button>
-               <span className="text-[9px] text-slate-300 font-black uppercase tracking-widest">v3.5 High-Concurrency Ready</span>
+               <span className="text-[9px] text-slate-300 font-black uppercase tracking-widest">v3.7 Fixed & Precise</span>
             </div>
           </div>
         </div>
@@ -435,7 +453,7 @@ const App: React.FC = () => {
       {selectedOrder && (
         <div className="fixed inset-0 z-[210] flex items-center justify-center p-5 animate-in zoom-in-95 duration-300">
           <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" onClick={()=>setSelectedOrder(null)}></div>
-          <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden relative z-10 border border-slate-50">
+          <div className="bg-white w-full max-sm rounded-3xl shadow-2xl overflow-hidden relative z-10 border border-slate-50">
              <div className="p-8 text-center border-b border-slate-50 bg-indigo-50/20">
                 <div className="w-14 h-14 bg-white text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl border border-indigo-50">
                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
