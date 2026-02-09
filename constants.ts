@@ -52,32 +52,32 @@ export const PAYMENT_METHODS = {
     name: 'eSewa',
     id: '9861513184',
     merchantName: 'Bishal Ghimire',
-    icon: 'esewa_icon.png',
-    qr: 'esewa_qr.png',
+    icon: '/esewa_icon.png',
+    qr: '/esewa_qr.png',
     color: '#60bb46'
   },
   khalti: {
     name: 'Khalti',
     id: '9861513184',
     merchantName: 'Bishal Ghimire',
-    icon: 'khalti_icon.png',
-    qr: 'khalti_qr.png',
+    icon: '/khalti_icon.png',
+    qr: '/khalti_qr.png',
     color: '#5c2d91'
   },
   imepay: {
     name: 'IME Pay',
     id: '9861513184',
     merchantName: 'Bishal Ghimire',
-    icon: 'imepay_icon.png',
-    qr: 'imepay_qr.png',
+    icon: '/imepay_icon.png',
+    qr: '/imepay_qr.png',
     color: '#ed1c24'
   },
   banking: {
     name: 'Banking (ADBL)',
     id: '0228202511791016',
     merchantName: 'BISHAL GHIMIRE',
-    icon: 'banking_icon.png',
-    qr: 'banking_qr.png',
+    icon: '/banking_icon.png',
+    qr: '/banking_qr.png',
     color: '#1e40af'
   }
 };
