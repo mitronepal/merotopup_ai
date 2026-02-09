@@ -1,7 +1,0 @@
-{
-  "name": "MeroTopup AI Assistant",
-  "description": "Nepal's first and only AI-powered game top-up system, providing a natural conversational interface for Free Fire, PUBG, and Mobile Legends top-ups.",
-  "requestFramePermissions": [
-    "camera"
-  ]
-}
